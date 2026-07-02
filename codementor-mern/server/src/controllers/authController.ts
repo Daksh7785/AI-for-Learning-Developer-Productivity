@@ -80,9 +80,20 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-export const getMe = async (req: AuthRequest, res: Response): Promise<void> => {
+export const getMe = async (req: Request, res: Response): Promise<void> => {
   try {
-    const user = await User.findById(req.user?.id).select('-password');
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+    
+    if (!token) {
+      res.status(401).json({ success: false, message: 'No token provided' });
+      return;
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as {
+      id: string;
+    };
+
+    const user = await User.findById(decoded.id).select('-password');
     if (!user) {
       res.status(404).json({ success: false, message: 'User not found' });
       return;
@@ -98,16 +109,46 @@ export const getMe = async (req: AuthRequest, res: Response): Promise<void> => {
       },
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Server error' });
+    res.status(401).json({ success: false, message: 'Invalid token' });
   }
 };
 
-export const googleAuth = async (req: Request, res: Response): Promise<void> => {
-  // Placeholder for Google OAuth implementation
-  res.json({ success: false, message: 'Google OAuth not implemented yet' });
+export const googleCallback = async (req: any, res: Response): Promise<void> => {
+  try {
+    const user = req.user;
+    if (!user) {
+      res.redirect(`${process.env.CLIENT_URL}/login?error=auth_failed`);
+      return;
+    }
+
+    const token = jwt.sign(
+      { id: user._id, email: user.email, role: user.role },
+      process.env.JWT_SECRET || 'your-secret-key',
+      { expiresIn: '7d' }
+    );
+
+    res.redirect(`${process.env.CLIENT_URL}/dashboard?token=${token}`);
+  } catch (error) {
+    res.redirect(`${process.env.CLIENT_URL}/login?error=auth_failed`);
+  }
 };
 
-export const githubAuth = async (req: Request, res: Response): Promise<void> => {
-  // Placeholder for GitHub OAuth implementation
-  res.json({ success: false, message: 'GitHub OAuth not implemented yet' });
+export const githubCallback = async (req: any, res: Response): Promise<void> => {
+  try {
+    const user = req.user;
+    if (!user) {
+      res.redirect(`${process.env.CLIENT_URL}/login?error=auth_failed`);
+      return;
+    }
+
+    const token = jwt.sign(
+      { id: user._id, email: user.email, role: user.role },
+      process.env.JWT_SECRET || 'your-secret-key',
+      { expiresIn: '7d' }
+    );
+
+    res.redirect(`${process.env.CLIENT_URL}/dashboard?token=${token}`);
+  } catch (error) {
+    res.redirect(`${process.env.CLIENT_URL}/login?error=auth_failed`);
+  }
 };
