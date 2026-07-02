@@ -10,7 +10,7 @@ export interface AuthRequest extends Request {
 }
 
 export const authenticate = (
-  req: AuthRequest,
+  req: Request,
   res: Response,
   next: NextFunction
 ): void => {
@@ -28,7 +28,7 @@ export const authenticate = (
       role: string;
     };
 
-    req.user = decoded;
+    (req as AuthRequest).user = decoded;
     next();
   } catch (error) {
     res.status(401).json({ success: false, message: 'Invalid token' });
