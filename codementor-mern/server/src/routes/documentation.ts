@@ -1,8 +1,10 @@
 import { Router } from 'express';
+import { authenticate } from '../middleware/auth';
+import { generateDocumentation, explainCode } from '../controllers/documentationController';
 
 const router = Router();
 
-// Placeholder routes - will be implemented in controllers
-router.get('/', (req, res) => res.json({ message: 'Documentation endpoint' }));
+router.post('/generate', authenticate, generateDocumentation as any);
+router.post('/explain', authenticate, explainCode as any);
 
 export default router;
