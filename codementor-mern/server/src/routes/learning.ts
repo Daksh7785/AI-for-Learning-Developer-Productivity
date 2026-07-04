@@ -1,8 +1,15 @@
 import { Router } from 'express';
+import { authenticate } from '../middleware/auth';
+import {
+  getLearningProgress,
+  updateLearningProgress,
+  generateLearningPath,
+} from '../controllers/learningController';
 
 const router = Router();
 
-// Placeholder routes - will be implemented in controllers
-router.get('/', (req, res) => res.json({ message: 'Learning endpoint' }));
+router.get('/progress', authenticate, getLearningProgress as any);
+router.post('/progress', authenticate, updateLearningProgress as any);
+router.post('/generate', authenticate, generateLearningPath as any);
 
 export default router;
