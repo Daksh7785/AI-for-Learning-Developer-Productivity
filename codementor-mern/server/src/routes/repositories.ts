@@ -6,6 +6,7 @@ import {
   getRepository,
   deleteRepository,
   updateRepository,
+  analyzeRepository,
 } from '../controllers/repositoryController';
 
 const router = Router();
@@ -15,5 +16,6 @@ router.get('/', authenticate, getRepositories as any);
 router.get('/:id', authenticate, getRepository as any);
 router.delete('/:id', authenticate, deleteRepository as any);
 router.patch('/:id', authenticate, updateRepository as any);
+router.post('/:id/analyze', authenticate, analyzeRepository as any);
 
 export default router;
