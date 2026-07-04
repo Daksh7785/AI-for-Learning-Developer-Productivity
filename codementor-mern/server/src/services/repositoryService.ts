@@ -4,7 +4,7 @@ import { getOpenAI } from '../config/openai';
 import { getClaude } from '../config/claude';
 
 export class RepositoryService {
-  async analyzeRepository(repositoryId:): Promise<void> {
+  async analyzeRepository(repositoryId: string): Promise<void> {
     const repository = await Repository.findById(repositoryId);
     if (!repository) throw new Error('Repository not found');
 
@@ -60,7 +60,8 @@ export class RepositoryService {
       ],
     });
 
-    return message.content[0].text;
+    const block = message.content[0];
+    return block.type === 'text' ? block.text : '';
   }
 }
 
